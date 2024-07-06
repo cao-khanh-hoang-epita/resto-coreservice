@@ -7,7 +7,7 @@ SECRET_KEY = 'your-secret-key-here'  # Replace with a secure secret key
 
 DEBUG = True  # Set to False in production
 
-APPEND_SLASH = True
+APPEND_SLASH = False
 
 ALLOWED_HOSTS = ['*']  # Restrict this in production
 

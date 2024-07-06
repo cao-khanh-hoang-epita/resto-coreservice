@@ -1,10 +1,7 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path, re_path
 from .views import MenuItemViewSet
 
-router = DefaultRouter()
-router.register(r'menu-items', MenuItemViewSet, basename='menuitem')
-
 urlpatterns = [
-    path('', include(router.urls)),
+    re_path(r'^menu-items/?$', MenuItemViewSet.as_view({'get': 'list', 'post': 'create'})),
+    re_path(r'^menu-items/(?P<pk>[0-9]+)/?$', MenuItemViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'})),
 ]
