@@ -1,10 +1,8 @@
-from apps.contact_service.models import ContactService
-from rest_framework import exceptions, serializers
+from rest_framework import serializers
+from .models import MenuItem
 
-from apps.core.models import History
-
-
-class ContactServiceSerializer(serializers.ModelSerializer):
+class MenuItemSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ContactService
-        fields = ('__all__')
+        model = MenuItem
+        fields = ['id', 'name', 'price', 'description', 'stocks', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']

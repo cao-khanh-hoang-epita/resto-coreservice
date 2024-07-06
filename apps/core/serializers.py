@@ -1,19 +1,7 @@
-from rest_framework import exceptions, serializers
+from rest_framework import serializers
+from .models import ApiLog
 
-from apps.core.models import History
-
-
-class HistorySerializer(serializers.Serializer):
+class ApiLogSerializer(serializers.ModelSerializer):
     class Meta:
-        model = History
-        fields = ('__all__')
-        # fields = ['user,description']
-        # exclude = ['trigger_date']
-
-
-class UserHistorySerializer(serializers.Serializer):
-    class Meta:
-        model = History
-        # fields = ('__all__')
-        fields = ['user']
-        # exclude = ['trigger_date']
+        model = ApiLog
+        fields = '__all__'

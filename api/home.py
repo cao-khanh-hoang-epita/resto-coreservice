@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import JsonResponse
 
-def home(request):
-    return HttpResponse("<h1>Hello World</h1>")
+def home_view(request):
+    return JsonResponse({"message": "Welcome to the Menu API"})

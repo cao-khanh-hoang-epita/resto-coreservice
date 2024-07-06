@@ -1,33 +1,48 @@
-# connectors.py
-import requests
+from django.db import connection
 
-class ContactServiceConnector:
-    def __init__(self, endpoint):
-        self.endpoint = endpoint
+class DatabaseConnector:
+    @staticmethod
+    def execute_query(query, params=None):
+        with connection.cursor() as cursor:
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
+            if query.strip().upper().startswith('SELECT'):
+                columns = [col[0] for col in cursor.description]
+                return [dict(zip(columns, row)) for row in cursor.fetchall()]
+            else:
+                return cursor.rowcount
 
-    def send_ping(self, endpoint: str):
-        response = requests.get(url=endpoint)
-        return response.status_code == 200
+    @staticmethod
+    def get_menu_items():
+        query = "SELECT * FROM contact_service_menuitem"
+        return DatabaseConnector.execute_query(query)
 
-    def send_request(self, method: str, path: str, data=None, params=None):
-        url = f"{self.endpoint}/{path.lstrip('/')}"
-        response = requests.request(method=method, url=url, data=data, params=params)
-        return response
+    @staticmethod
+    def get_menu_item(item_id):
+        query = "SELECT * FROM contact_service_menuitem WHERE id = %s"
+        result = DatabaseConnector.execute_query(query, [item_id])
+        return result[0] if result else None
 
-    def getAllBlogs(self):
-        return self.send_request('get', '/')
+    @staticmethod
+    def create_menu_item(name, price, description, stocks):
+        query = """
+        INSERT INTO contact_service_menuitem (name, price, description, stocks, created_at, updated_at)
+        VALUES (%s, %s, %s, %s, NOW(), NOW())
+        """
+        return DatabaseConnector.execute_query(query, [name, price, description, stocks])
 
-    def create_blog(self, data: dict):
-        return self.send_request('post', '/', data=data)
+    @staticmethod
+    def update_menu_item(item_id, name, price, description, stocks):
+        query = """
+        UPDATE contact_service_menuitem
+        SET name = %s, price = %s, description = %s, stocks = %s, updated_at = NOW()
+        WHERE id = %s
+        """
+        return DatabaseConnector.execute_query(query, [name, price, description, stocks, item_id])
 
-    def get_blog_by_id(self, blog_id: str):
-        return self.send_request('get', f'/{blog_id}')
-
-    def update_blog(self, blog_id: str, data: dict):
-        return self.send_request('put', f'/{blog_id}', data=data)
-
-    def delete_blog(self, blog_id: str):
-        return self.send_request('delete', f'/{blog_id}')
-
-    def get_authorization_url(self):
-        return self.send_request('get', '/api/blogs')
+    @staticmethod
+    def delete_menu_item(item_id):
+        query = "DELETE FROM contact_service_menuitem WHERE id = %s"
+        return DatabaseConnector.execute_query(query, [item_id])

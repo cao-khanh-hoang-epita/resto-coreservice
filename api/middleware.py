@@ -1,24 +1,22 @@
-# api/middleware.py
+import time
+from apps.core.models import ApiLog
 
-import requests
-
-class ReverseProxyMiddleware:
+class CustomMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        # Check if the request path starts with '/api/'
-        if request.path.startswith('/api/'):
-            url = f'http://localhost:3001{request.path}'
-            # Forward the request to the CRUD service
-            response = requests.request(
-                method=request.method,
-                url=url,
-                headers=request.headers,
-                data=request.body,
-                params=request.GET
-            )
-            # Return the response from the CRUD service
-            return response
-
-        return self.get_response(request)
+        start_time = time.time()
+        
+        response = self.get_response(request)
+        
+        duration = time.time() - start_time
+        
+        ApiLog.objects.create(
+            method=request.method,
+            path=request.path,
+            status_code=response.status_code,
+            duration=duration
+        )
+        
+        return response
