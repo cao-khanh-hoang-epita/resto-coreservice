@@ -1,49 +1,33 @@
+# connectors.py
 import requests
 
-
-
-class ContactServiceConnector():
-
-    def __init__(self):
-
-        self.url = 'http://localhost:8001'
+class ContactServiceConnector:
+    def __init__(self, endpoint):
+        self.endpoint = endpoint
 
     def send_ping(self, endpoint: str):
-
         response = requests.get(url=endpoint)
+        return response.status_code == 200
 
-        if response.status_code == 200:
-            return True
-        else:
-            return False
-
-    def create_contact(self, data: dict):
-
-        response = requests.post(url=self.url, data=data)
-
+    def send_request(self, method: str, path: str, data=None, params=None):
+        url = f"{self.endpoint}/{path.lstrip('/')}"
+        response = requests.request(method=method, url=url, data=data, params=params)
         return response
 
-    def update_contact(self, data: dict):
+    def getAllBlogs(self):
+        return self.send_request('get', '/')
 
-        response = requests.patch(url=self.url, data=data)
+    def create_blog(self, data: dict):
+        return self.send_request('post', '/', data=data)
 
-        return response
+    def get_blog_by_id(self, blog_id: str):
+        return self.send_request('get', f'/{blog_id}')
 
-    def delete_contact(self):
+    def update_blog(self, blog_id: str, data: dict):
+        return self.send_request('put', f'/{blog_id}', data=data)
 
-        response = requests.delete(url=self.url)
-
-        return response
-
-    def retrieve_contact(self, params: dict):
-
-        response = requests.get(url=self.url, params=params)
-
-        return response
+    def delete_blog(self, blog_id: str):
+        return self.send_request('delete', f'/{blog_id}')
 
     def get_authorization_url(self):
-        response = requests.get(
-            url=self.url + '/outlook/get_authorization_url'
-        )
-
-        return response
+        return self.send_request('get', '/api/blogs')

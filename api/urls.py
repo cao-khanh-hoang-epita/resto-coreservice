@@ -18,25 +18,13 @@ from django.urls import re_path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 
-from apps.core.views import HistoryViewSet, HistoryTwoViewSet, ContactServiceViewSet
-from django.urls import path, re_path
-from .proxy_views import ProxyView
-from api.middleware import ReverseProxyMiddleware
-from . import views
+from apps.core.views import HistoryViewSet, HistoryTwoViewSet, ContactServiceViewSet, OutlookServiceViewSet
+from .proxy_view import ProxyView
 
 router = DefaultRouter()
-router.register(r'history', HistoryViewSet, basename='history')
-router.register(r'history-two', HistoryTwoViewSet, basename='history-two')
+
 router.register(r'contacts', ContactServiceViewSet, basename='contacts')
-router.register(r'crud', ContactServiceViewSet, basename='crud')
-
-crud_router = routers.NestedSimpleRouter(router, r'crud',)
-
 
 urlpatterns = [
     re_path(r'^', include(router.urls)),
-    re_path(r'^', include(crud_router.urls)),
-    re_path(r'^api/(?P<path>.*)$', ReverseProxyMiddleware.as_view(), name='proxy'),
-    path('api/', include('crud_service.urls')),
-    path('ok/',views.home,name='home'),
 ]

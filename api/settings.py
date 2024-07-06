@@ -38,8 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'apps.core',
-    'apps.crud_service',
-    'django_proxy',
+    'apps.contact_service'
 ]
 
 MIDDLEWARE = [
@@ -50,7 +49,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'api.middleware.ReverseProxyMiddleware',
 ]
 
 ROOT_URLCONF = 'api.urls'
