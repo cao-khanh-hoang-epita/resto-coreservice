@@ -1,21 +1,26 @@
 from django.test import TestCase
-from unittest.mock import patch
+from django.urls import reverse
+from rest_framework import status
 from rest_framework.test import APIClient
-from .views import BaseProxyView
+from .models import APILog
 
-class BaseProxyViewTestCase(TestCase):
+class HealthCheckTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    @patch('apps.core.views.requests.request')
-    def test_proxy_request(self, mock_request):
-        mock_request.return_value.json.return_value = {'data': 'test'}
-        mock_request.return_value.status_code = 200
+    def test_health_check(self):
+        url = reverse('health_check')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"status": "healthy"})
 
-        view = BaseProxyView()
-        response = view.get(request=self.client.get('/test/'))
+class APILogTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        APILog.objects.create(method='GET', path='/api/test', status_code=200)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, {'data': 'test'})
-
-    # Add more tests as needed
+    def test_api_log_list(self):
+        url = reverse('api_log_list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)

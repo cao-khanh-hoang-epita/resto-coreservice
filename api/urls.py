@@ -1,10 +1,7 @@
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from apps.contact_service.views import MenuItemViewSet
-
-router = DefaultRouter()
-router.register(r'menu-items', MenuItemViewSet, basename='menu-item')
 
 urlpatterns = [
-    path('contact/', include(router.urls)),
+    path('api/menu/', include('apps.menu.urls')),    # Route to menu service
+    path('api/cart/', include('apps.cart.urls')),    # Route to cart service
+    # Add more routes as needed for other microservices
 ]

@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import ApiLog
+from .models import APILog
 
-class ApiLogSerializer(serializers.ModelSerializer):
+class APILogSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ApiLog
-        fields = '__all__'
+        model = APILog
+        fields = ['id', 'method', 'path', 'status_code', 'timestamp']

@@ -1,16 +1,26 @@
 import os
-from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'your-secret-key-here'  # Replace with a secure secret key
+SECRET_KEY = 'your_secret_key_here'  # Replace with a secure secret key in production
 
 DEBUG = True  # Set to False in production
 
-APPEND_SLASH = False
+ALLOWED_HOSTS = ['*']  # Update with actual host(s) in production
 
-ALLOWED_HOSTS = ['*']  # Restrict this in production
+# Database settings
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'coreservice',
+        'USER': 'postgres',
+        'PASSWORD': 'Ahgase07',
+        'HOST': 'db',
+        'PORT': '5432',
+    }
+}
 
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -18,14 +28,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'corsheaders',
+    'apps.menu_service',
+    'apps.cart_service',
     'apps.core',
-    'apps.contact_service',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -33,55 +41,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'api.middleware.CustomMiddleware',
+    'api.middleware.ProxyMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-CRUD_SERVICE_URL = 'http://localhost:8001' 
+# Proxy service URLs
+MENU_SERVICE_URL = 'http://resto-menuservice:8001'  # Update with actual URL
+CART_SERVICE_URL = 'http://resto-cartservice:8002'  # Update with actual URL
 
-ROOT_URLCONF = 'api.urls'
-
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
-
-WSGI_APPLICATION = 'api.wsgi.application'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'coreservice',
-        'USER': 'postgres',
-        'PASSWORD': 'Ahgase07',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
-
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
-
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# CORS settings (adjust as needed)
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins in development; set to False in production

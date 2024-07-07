@@ -1,35 +1,36 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
 import requests
 from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
-class BaseProxyView(APIView):
-    service_url = settings.CRUD_SERVICE_URL
+class ProxyView(APIView):
+    service_url = None
 
-    def proxy_request(self, request, path=''):
+    def proxy_request(self, request, *args, **kwargs):
         method = request.method.lower()
-        url = f"{self.service_url}/{path}"
-        headers = {'Content-Type': 'application/json'}
+        url = f"{self.service_url}{request.path}"
         data = request.data if method in ['post', 'put', 'patch'] else None
-        params = request.query_params if method == 'get' else None
-
         try:
-            response = requests.request(method, url, json=data, params=params, headers=headers)
+            response = requests.request(method, url, json=data, params=request.query_params)
             return Response(response.json(), status=response.status_code)
         except requests.RequestException as e:
-            return Response({'error': str(e)}, status=500)
+            return Response({'error': str(e)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-    def get(self, request, path=''):
-        return self.proxy_request(request, path)
+    def get(self, request, *args, **kwargs):
+        return self.proxy_request(request, *args, **kwargs)
 
-    def post(self, request, path=''):
-        return self.proxy_request(request, path)
+    def post(self, request, *args, **kwargs):
+        return self.proxy_request(request, *args, **kwargs)
 
-    def put(self, request, path=''):
-        return self.proxy_request(request, path)
+    def put(self, request, *args, **kwargs):
+        return self.proxy_request(request, *args, **kwargs)
 
-    def patch(self, request, path=''):
-        return self.proxy_request(request, path)
+    def delete(self, request, *args, **kwargs):
+        return self.proxy_request(request, *args, **kwargs)
 
-    def delete(self, request, path=''):
-        return self.proxy_request(request, path)
+class MenuProxyView(ProxyView):
+    service_url = settings.MENU_SERVICE_URL
+
+class CartProxyView(ProxyView):
+    service_url = settings.CART_SERVICE_URL

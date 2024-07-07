@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import ApiLog
+from .models import RestoTable
 
-@admin.register(ApiLog)
-class ApiLogAdmin(admin.ModelAdmin):
-    list_display = ('method', 'path', 'status_code', 'duration', 'timestamp')
-    list_filter = ('method', 'status_code')
-    search_fields = ('path',)
+@admin.register(RestoTable)
+class RestoTableAdmin(admin.ModelAdmin):
+    list_display = ('table_number', 'capacity', 'is_occupied', 'created_at', 'updated_at')
+    list_filter = ('is_occupied',)
+    search_fields = ('table_number',)
