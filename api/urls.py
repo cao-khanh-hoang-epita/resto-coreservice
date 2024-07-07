@@ -1,12 +1,10 @@
-from django.contrib import admin
 from django.urls import path, include
-from .home import home_view
-from .proxy_views import MenuProxyView
+from rest_framework.routers import DefaultRouter
+from apps.contact_service.views import MenuItemViewSet
+
+router = DefaultRouter()
+router.register(r'menu-items', MenuItemViewSet, basename='menu-item')
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', home_view, name='home'),
-    path('api/menu/', MenuProxyView.as_view(), name='menu_proxy'),
-    path('core/', include('apps.core.urls')),
-    path('contact/', include('apps.contact_service.urls')),
+    path('contact/', include(router.urls)),
 ]

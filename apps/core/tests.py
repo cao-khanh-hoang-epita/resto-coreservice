@@ -1,23 +1,21 @@
 from django.test import TestCase
+from unittest.mock import patch
 from rest_framework.test import APIClient
-from rest_framework import status
-from .models import ApiLog
+from .views import BaseProxyView
 
-class HealthCheckTestCase(TestCase):
+class BaseProxyViewTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def test_health_check(self):
-        response = self.client.get('/api/health/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, {"status": "healthy"})
+    @patch('apps.core.views.requests.request')
+    def test_proxy_request(self, mock_request):
+        mock_request.return_value.json.return_value = {'data': 'test'}
+        mock_request.return_value.status_code = 200
 
-class ApiLogTestCase(TestCase):
-    def setUp(self):
-        self.client = APIClient()
-        ApiLog.objects.create(method='GET', path='/api/test/', status_code=200, duration=0.1)
+        view = BaseProxyView()
+        response = view.get(request=self.client.get('/test/'))
 
-    def test_api_log_list(self):
-        response = self.client.get('/api/logs/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, {'data': 'test'})
+
+    # Add more tests as needed

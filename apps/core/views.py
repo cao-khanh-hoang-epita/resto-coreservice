@@ -1,15 +1,35 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .models import ApiLog
-from .serializers import ApiLogSerializer
+import requests
+from django.conf import settings
 
-class HealthCheckView(APIView):
-    def get(self, request):
-        return Response({"status": "healthy"}, status=status.HTTP_200_OK)
+class BaseProxyView(APIView):
+    service_url = settings.CRUD_SERVICE_URL
 
-class ApiLogView(APIView):
-    def get(self, request):
-        logs = ApiLog.objects.all()[:100]  # Get the last 100 logs
-        serializer = ApiLogSerializer(logs, many=True)
-        return Response(serializer.data)
+    def proxy_request(self, request, path=''):
+        method = request.method.lower()
+        url = f"{self.service_url}/{path}"
+        headers = {'Content-Type': 'application/json'}
+        data = request.data if method in ['post', 'put', 'patch'] else None
+        params = request.query_params if method == 'get' else None
+
+        try:
+            response = requests.request(method, url, json=data, params=params, headers=headers)
+            return Response(response.json(), status=response.status_code)
+        except requests.RequestException as e:
+            return Response({'error': str(e)}, status=500)
+
+    def get(self, request, path=''):
+        return self.proxy_request(request, path)
+
+    def post(self, request, path=''):
+        return self.proxy_request(request, path)
+
+    def put(self, request, path=''):
+        return self.proxy_request(request, path)
+
+    def patch(self, request, path=''):
+        return self.proxy_request(request, path)
+
+    def delete(self, request, path=''):
+        return self.proxy_request(request, path)
